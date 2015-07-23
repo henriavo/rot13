@@ -17,18 +17,20 @@
 import webapp2
 
 form = """
+<form method ="post">
 
-<label>
-	<b>Enter some text to ROT13:</b>
-	<br>
-	<textarea name="text" rows="8" cols="50" >
-		%s
-	</textarea>
-	<br>
-	<input type="submit">
+	<label>
+		<b>Enter some text to ROT13:</b>
+		<br>
+		<textarea name="text" rows="8" cols="50" >
+			%s
+		</textarea>
+		<br>
+		<input type="submit">
 
-	 
-</label>
+		 
+	</label>
+</form>
 
 """
 
@@ -42,28 +44,37 @@ class MainHandler(webapp2.RequestHandler):
 	def get(self):
 		self.write_form()
 
+	def post(self):
+		inputText = self.request.get('text')
+		rot13Text = self.processRot13(inputText)
+		self.write_form(rot13Text)
+
+
 	def processRot13(self, inputText=""):
+		finalOutput = ""
 		for x in inputText:
 			if x.isalpha:
 				currentLetter = x.lower()
-				if currentLetter in alphabet:
+				if currentLetter in self.alphabet:
 					lowerCase = x.islower()
-					if alphabet.index(currentLetter) >= 13:
-						rotateIndex = alphabet.index(currentLetter) - 13
-						rot13Char = alphabet[rotateIndex]
+					if self.alphabet.index(currentLetter) >= 13:
+						rotateIndex = self.alphabet.index(currentLetter) - 13
+						rot13Char = self.alphabet[rotateIndex]
 						if lowerCase:
 							finalOutput = finalOutput + rot13Char.lower()
 						else:
 							finalOutput = finalOutput + rot13Char.upper()
 
 					else:
-						rot13Char = alphabet[alphabet.index(currentLetter) + 13]
+						rot13Char = self.alphabet[self.alphabet.index(currentLetter) + 13]
 						if lowerCase:
 							finalOutput = finalOutput + rot13Char.lower()
 						else:
 							finalOutput = finalOutput + rot13Char.upper()
 				else:
 					finalOutput = finalOutput + x
+
+		return finalOutput
  	    
 
 app = webapp2.WSGIApplication([('/', MainHandler)], debug=True)
